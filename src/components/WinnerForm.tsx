@@ -70,6 +70,19 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
       setFormError(`The date ${formData.month} ${formData.day}, ${formData.year} is not valid.`);
       return;
     }
+
+    // Check for future dates
+    const monthIndex = MONTHS.indexOf((formData.month || '').toUpperCase());
+    if (monthIndex !== -1 && formData.day && formData.year) {
+      const selectedDate = new Date(formData.year, monthIndex, formData.day);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+
+      if (selectedDate > today) {
+        setFormError('Cannot select a future date. Please enter a date that has already occurred.');
+        return;
+      }
+    }
     setFormError(null);
 
     // If editing, check if any changes were actually made
@@ -230,6 +243,7 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
             <input
               type="number"
               required
+              max={new Date().getFullYear()}
               value={formData.year}
               onChange={(e) => {
                 setFormError(null);
