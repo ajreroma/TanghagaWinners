@@ -197,8 +197,8 @@ export default function App() {
                 <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10">
                   <tr>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Full Name</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Day</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Month</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Day</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Year</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
@@ -223,8 +223,8 @@ export default function App() {
                             winner.name
                           )}
                         </td>
-                        <td className="px-6 py-4 text-slate-600 text-sm">{winner.day}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm uppercase font-medium">{winner.month}</td>
+                        <td className="px-6 py-4 text-slate-600 text-sm">{winner.day}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.year}</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">

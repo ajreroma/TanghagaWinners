@@ -173,6 +173,24 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
           </div>
 
           <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Month
+              </label>
+              <select
+                required
+                value={formData.month}
+                onChange={(e) => {
+                  setFormError(null);
+                  setFormData({ ...formData, month: e.target.value });
+                }}
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
+              >
+                {MONTHS.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Day
@@ -202,24 +220,6 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
                 }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
               />
-            </div>
-            <div className="col-span-2 space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Month
-              </label>
-              <select
-                required
-                value={formData.month}
-                onChange={(e) => {
-                  setFormError(null);
-                  setFormData({ ...formData, month: e.target.value });
-                }}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
-              >
-                {MONTHS.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
             </div>
           </div>
 
