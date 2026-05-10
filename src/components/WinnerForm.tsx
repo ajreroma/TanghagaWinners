@@ -73,6 +73,16 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
     setFormError(null);
   }, [formData.month, formData.year]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
