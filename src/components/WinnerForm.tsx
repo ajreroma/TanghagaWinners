@@ -65,6 +65,12 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const currentYear = new Date().getFullYear();
+    if (formData.year && (formData.year < 1900 || formData.year > currentYear)) {
+      setFormError('Invalid year. Please enter a valid year.');
+      return;
+    }
+
     // Final safety validation
     if (!isValidDate(formData.day, formData.month, formData.year)) {
       setFormError(`The date ${formData.month} ${formData.day}, ${formData.year} is not valid.`);
