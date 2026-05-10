@@ -14,20 +14,31 @@ interface WinnerFormProps {
 const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], onSubmit, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Winner>>({
-    name: '',
-    day: new Date().getDate(),
-    month: MONTHS[new Date().getMonth()],
-    year: new Date().getFullYear(),
-    isNoWinner: false,
+  const [formData, setFormData] = useState<Partial<Winner>>(() => {
+    if (winner) {
+      return {
+        name: winner.name,
+        month: winner.month?.toUpperCase(),
+        day: winner.day,
+        year: winner.year,
+        isNoWinner: winner.isNoWinner || false,
+      };
+    }
+    return {
+      name: '',
+      month: MONTHS[new Date().getMonth()],
+      day: new Date().getDate(),
+      year: new Date().getFullYear(),
+      isNoWinner: false,
+    };
   });
 
   useEffect(() => {
     if (winner) {
       setFormData({
         name: winner.name,
+        month: winner.month?.toUpperCase(),
         day: winner.day,
-        month: winner.month,
         year: winner.year,
         isNoWinner: winner.isNoWinner || false,
       });
