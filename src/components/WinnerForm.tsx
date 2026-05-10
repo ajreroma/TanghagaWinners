@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface WinnerFormProps {
   winner?: Winner | null;
-  onSubmit: (data: Partial<Winner>) => void;
+  onSubmit: (data: Partial<Winner>) => Promise<void>;
   onClose: () => void;
 }
 
 export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<Partial<Winner>>({
     name: '',
     day: new Date().getDate(),
@@ -31,9 +32,15 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
     }
   }, [winner]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+      // App.tsx handles closing via state change, but we ensure loading stops
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -153,9 +160,17 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-md text-sm"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors font-bold shadow-md text-sm flex items-center justify-center gap-2"
             >
-              {winner ? 'Save Changes' : 'Confirm Entry'}
+              {isSubmitting ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                winner ? 'Save Changes' : 'Confirm Entry'
+              )}
             </button>
           </div>
         </form>
