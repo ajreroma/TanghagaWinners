@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "Winner": {
+      "title": "Winner",
+      "description": "A weekly winner entry",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the winner"
+        },
+        "day": {
+          "type": "integer",
+          "description": "Day of the month (1-31)"
+        },
+        "month": {
+          "type": "string",
+          "description": "Month of the year"
+        },
+        "year": {
+          "type": "integer",
+          "description": "Year of the win"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the entry was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the entry was last updated"
+        }
+      },
+      "required": ["name", "day", "month", "year"]
+    }
+  },
+  "firestore": {
+    "/winners": {
+      "schema": "Winner",
+      "description": "Collection of weekly winners"
+    }
+  }
+}
