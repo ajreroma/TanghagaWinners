@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Winner } from '../types';
 import { MONTHS } from '../constants';
-import { X } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface WinnerFormProps {
@@ -12,6 +12,7 @@ interface WinnerFormProps {
 
 export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Winner>>({
     name: '',
     day: new Date().getDate(),
@@ -32,8 +33,30 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
     }
   }, [winner]);
 
+  const isValidDate = (day: number, monthName: string, year: number) => {
+    const monthIndex = MONTHS.indexOf(monthName);
+    if (monthIndex === -1) return false;
+    // Note: new Date(year, month, day) will rollover (e.g. April 31 -> May 1)
+    // We check if the result matches the inputs to verify validity
+    const date = new Date(year, monthIndex, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === monthIndex &&
+      date.getDate() === day
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Date validation
+    if (formData.day && formData.month && formData.year) {
+      if (!isValidDate(formData.day, formData.month, formData.year)) {
+        setDateError(`Invalid date: ${formData.month} ${formData.day}, ${formData.year} does not exist.`);
+        return;
+      }
+    }
+    setDateError(null);
 
     // If editing, check if any changes were actually made
     if (winner) {
@@ -101,7 +124,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
               className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
             <label htmlFor="no-winner-checkbox" className="text-sm font-bold text-slate-700 cursor-pointer select-none">
-              No Winner for this period
+              No Winner for this week
             </label>
           </div>
 
@@ -131,7 +154,15 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
                 max="31"
                 required
                 value={formData.day}
-                onChange={(e) => setFormData({ ...formData, day: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  setDateError(null);
+                  if (isNaN(val)) {
+                    setFormData({ ...formData, day: undefined });
+                  } else {
+                    setFormData({ ...formData, day: Math.min(Math.max(1, val), 31) });
+                  }
+                }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
               />
             </div>
@@ -142,7 +173,10 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
               <select
                 required
                 value={formData.month}
-                onChange={(e) => setFormData({ ...formData, month: e.target.value })}
+                onChange={(e) => {
+                  setDateError(null);
+                  setFormData({ ...formData, month: e.target.value });
+                }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
               >
                 {MONTHS.map(m => (
@@ -154,16 +188,33 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Competition Year
+              YEAR
             </label>
             <input
               type="number"
               required
               value={formData.year}
-              onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+              onChange={(e) => {
+                setDateError(null);
+                setFormData({ ...formData, year: parseInt(e.target.value) });
+              }}
               className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
             />
           </div>
+
+          <AnimatePresence>
+            {dateError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-rose-50 border border-rose-100 rounded-lg p-3 flex items-center gap-3 text-rose-600 overflow-hidden"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <p className="text-xs font-semibold">{dateError}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="pt-4 flex gap-3">
             <button
