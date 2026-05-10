@@ -11,7 +11,7 @@ interface WinnerFormProps {
   onClose: () => void;
 }
 
-export default function WinnerForm({ winner, existingWinners = [], onSubmit, onClose }: WinnerFormProps) {
+const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], onSubmit, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Winner>>({
@@ -35,14 +35,14 @@ export default function WinnerForm({ winner, existingWinners = [], onSubmit, onC
   }, [winner]);
 
   const getMaxDays = (monthName: string, year: number) => {
-    const monthIndex = MONTHS.indexOf(monthName);
+    const monthIndex = MONTHS.indexOf(monthName.toUpperCase());
     if (monthIndex === -1) return 31;
     return new Date(year, monthIndex + 1, 0).getDate();
   };
 
   const isValidDate = (day: number | undefined, monthName: string | undefined, year: number | undefined) => {
     if (!day || !monthName || !year) return true;
-    const monthIndex = MONTHS.indexOf(monthName);
+    const monthIndex = MONTHS.indexOf(monthName.toUpperCase());
     if (monthIndex === -1) return false;
     const date = new Date(year, monthIndex, day);
     return (
@@ -280,4 +280,6 @@ export default function WinnerForm({ winner, existingWinners = [], onSubmit, onC
       </motion.div>
     </motion.div>
   );
-}
+};
+
+export default WinnerForm;

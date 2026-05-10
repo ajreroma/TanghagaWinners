@@ -12,7 +12,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-export default function ConfirmDialog({ 
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ 
   isOpen, 
   title, 
   message, 
@@ -20,7 +20,7 @@ export default function ConfirmDialog({
   variant = 'danger',
   onConfirm, 
   onCancel 
-}: ConfirmDialogProps) {
+}) => {
   const isDanger = variant === 'danger';
 
   return (
@@ -80,4 +80,6 @@ export default function ConfirmDialog({
       )}
     </AnimatePresence>
   );
-}
+};
+
+export default ConfirmDialog;

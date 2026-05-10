@@ -51,8 +51,8 @@ export default function App() {
     const q = query(collection(db, 'winners'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
+        ...doc.data(),
         id: doc.id,
-        ...doc.data()
       })) as Winner[];
       setWinners(data);
       setIsLoading(false);
@@ -111,8 +111,8 @@ export default function App() {
       if (b.year !== a.year) return b.year - a.year;
       
       // Secondary: Month (desc)
-      const monthIndexA = MONTHS.indexOf(a.month);
-      const monthIndexB = MONTHS.indexOf(b.month);
+      const monthIndexA = MONTHS.indexOf(a.month.toUpperCase());
+      const monthIndexB = MONTHS.indexOf(b.month.toUpperCase());
       if (monthIndexB !== monthIndexA) return monthIndexB - monthIndexA;
       
       // Tertiary: Day (desc)
@@ -224,7 +224,7 @@ export default function App() {
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.day}</td>
-                        <td className="px-6 py-4 text-slate-600 text-sm">{winner.month}</td>
+                        <td className="px-6 py-4 text-slate-600 text-sm uppercase font-medium">{winner.month}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.year}</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -269,9 +269,10 @@ export default function App() {
       </footer>
 
       {/* Modals */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isFormOpen && (
           <WinnerForm
+            key="add-winner-form"
             existingWinners={winners}
             onClose={() => setIsFormOpen(false)}
             onSubmit={handleAddWinner}
@@ -279,6 +280,7 @@ export default function App() {
         )}
         {editingWinner && (
           <WinnerForm
+            key="edit-winner-form"
             winner={editingWinner}
             existingWinners={winners}
             onClose={() => setEditingWinner(null)}
@@ -286,6 +288,7 @@ export default function App() {
           />
         )}
         <ConfirmDialog
+          key="delete-confirm-dialog"
           isOpen={!!deletingWinnerId}
           title="Confirm Deletion"
           message="Are you sure you want to remove this winner from the database? This action is permanent."
@@ -295,6 +298,7 @@ export default function App() {
           onCancel={() => setDeletingWinnerId(null)}
         />
         <ConfirmDialog
+          key="logout-confirm-dialog"
           isOpen={isLogoutConfirmOpen}
           title="Log Out"
           message="Are you sure you want to log out of the weekly winner database?"
