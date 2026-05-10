@@ -16,6 +16,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
     day: new Date().getDate(),
     month: MONTHS[new Date().getMonth()],
     year: new Date().getFullYear(),
+    isNoWinner: false,
   });
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
         day: winner.day,
         month: winner.month,
         year: winner.year,
+        isNoWinner: winner.isNoWinner || false,
       });
     }
   }, [winner]);
@@ -61,17 +63,38 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <input
+              type="checkbox"
+              id="no-winner-checkbox"
+              checked={formData.isNoWinner}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setFormData({ 
+                  ...formData, 
+                  isNoWinner: checked,
+                  name: checked ? 'No Winner' : (winner?.name || '')
+                });
+              }}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <label htmlFor="no-winner-checkbox" className="text-sm font-bold text-slate-700 cursor-pointer select-none">
+              No Winner for this period
+            </label>
+          </div>
+
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Full Legal Name
             </label>
             <input
               type="text"
-              required
+              required={!formData.isNoWinner}
+              disabled={formData.isNoWinner}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
-              placeholder="e.g. Jonathan Aris"
+              className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm ${formData.isNoWinner ? 'bg-slate-50 text-slate-400 border-slate-100 italic' : ''}`}
+              placeholder={formData.isNoWinner ? 'No winner assigned' : 'e.g. Jonathan Aris'}
             />
           </div>
 

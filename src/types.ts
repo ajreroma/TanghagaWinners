@@ -4,6 +4,7 @@ export interface Winner {
   day: number;
   month: string;
   year: number;
+  isNoWinner?: boolean;
   createdAt: any; // Firestore Timestamp
   updatedAt: any; // Firestore Timestamp
 }

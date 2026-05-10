@@ -21,6 +21,7 @@ import { Winner, OperationType } from './types';
 import { MONTHS } from './constants';
 import Login from './components/Login';
 import WinnerForm from './components/WinnerForm';
+import ConfirmDialog from './components/ConfirmDialog';
 import { 
   Search, 
   Plus, 
@@ -31,7 +32,8 @@ import {
   Calendar, 
   User,
   LayoutGrid,
-  ChevronRight
+  ChevronRight,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -41,6 +43,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingWinner, setEditingWinner] = useState<Winner | null>(null);
+  const [deletingWinnerId, setDeletingWinnerId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -85,12 +88,13 @@ export default function App() {
     }
   };
 
-  const handleDeleteWinner = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this winner?')) return;
+  const handleDeleteWinner = async () => {
+    if (!deletingWinnerId) return;
     try {
-      await deleteDoc(doc(db, 'winners', id));
+      await deleteDoc(doc(db, 'winners', deletingWinnerId));
+      setDeletingWinnerId(null);
     } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `winners/${id}`);
+      handleFirestoreError(error, OperationType.DELETE, `winners/${deletingWinnerId}`);
     }
   };
 
@@ -208,7 +212,16 @@ export default function App() {
                         exit={{ opacity: 0 }}
                         className="hover:bg-slate-50/80 transition-colors group"
                       >
-                        <td className="px-6 py-4 font-semibold text-slate-800 text-sm">{winner.name}</td>
+                        <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
+                          {winner.isNoWinner ? (
+                            <span className="flex items-center gap-2 text-slate-400 italic">
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              No Winner
+                            </span>
+                          ) : (
+                            winner.name
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.day}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.month}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.year}</td>
@@ -221,7 +234,7 @@ export default function App() {
                               Edit
                             </button>
                             <button
-                              onClick={() => winner.id && handleDeleteWinner(winner.id)}
+                              onClick={() => winner.id && setDeletingWinnerId(winner.id)}
                               className="text-rose-600 hover:text-rose-800 text-xs font-bold uppercase tracking-wider"
                             >
                               Delete
@@ -269,6 +282,13 @@ export default function App() {
             onSubmit={handleUpdateWinner}
           />
         )}
+        <ConfirmDialog
+          isOpen={!!deletingWinnerId}
+          title="Confirm Deletion"
+          message="Are you sure you want to remove this winner from the database? This action is permanent."
+          onConfirm={handleDeleteWinner}
+          onCancel={() => setDeletingWinnerId(null)}
+        />
       </AnimatePresence>
     </div>
   );

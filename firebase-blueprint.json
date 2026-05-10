@@ -21,6 +21,10 @@
           "type": "integer",
           "description": "Year of the win"
         },
+        "isNoWinner": {
+          "type": "boolean",
+          "description": "True if no winner was selected for this period"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

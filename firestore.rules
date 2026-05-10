@@ -27,6 +27,7 @@ service cloud.firestore {
              data.day is int && data.day >= 1 && data.day <= 31 &&
              data.month is string && data.month.size() > 0 && data.month.size() <= 20 &&
              data.year is int && data.year >= 2000 && data.year <= 2100 &&
+             (data.isNoWinner == null || data.isNoWinner is bool) &&
              data.createdAt is timestamp &&
              data.updatedAt is timestamp;
     }
