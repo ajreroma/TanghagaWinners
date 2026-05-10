@@ -6,11 +6,23 @@ interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
   message: string;
+  confirmText?: string;
+  variant?: 'danger' | 'primary';
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }: ConfirmDialogProps) {
+export default function ConfirmDialog({ 
+  isOpen, 
+  title, 
+  message, 
+  confirmText = 'Confirm',
+  variant = 'danger',
+  onConfirm, 
+  onCancel 
+}: ConfirmDialogProps) {
+  const isDanger = variant === 'danger';
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -24,16 +36,16 @@ export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCan
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
-            className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200"
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 relative"
           >
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600">
+                <div className={`w-10 h-10 ${isDanger ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'} rounded-lg flex items-center justify-center`}>
                   <AlertCircle className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-                  <p className="text-sm text-slate-500">Action cannot be undone</p>
+                  <p className="text-sm text-slate-500">{isDanger ? 'Action cannot be undone' : 'Please confirm your choice'}</p>
                 </div>
               </div>
               
@@ -50,9 +62,9 @@ export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCan
                 </button>
                 <button
                   onClick={onConfirm}
-                  className="flex-1 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors font-bold shadow-md text-sm"
+                  className={`flex-1 px-4 py-2 ${isDanger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-lg transition-colors font-bold shadow-md text-sm`}
                 >
-                  Delete Record
+                  {confirmText}
                 </button>
               </div>
             </div>

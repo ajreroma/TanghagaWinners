@@ -44,6 +44,7 @@ export default function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingWinner, setEditingWinner] = useState<Winner | null>(null);
   const [deletingWinnerId, setDeletingWinnerId] = useState<string | null>(null);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export default function App() {
             Logged in as <strong className="text-slate-700">admin</strong>
           </div>
           <button
-            onClick={() => setIsLoggedIn(false)}
+            onClick={() => setIsLogoutConfirmOpen(true)}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-md transition-colors flex items-center gap-2"
           >
             <LogOut className="w-4 h-4" />
@@ -288,8 +289,19 @@ export default function App() {
           isOpen={!!deletingWinnerId}
           title="Confirm Deletion"
           message="Are you sure you want to remove this winner from the database? This action is permanent."
+          confirmText="Delete Record"
+          variant="danger"
           onConfirm={handleDeleteWinner}
           onCancel={() => setDeletingWinnerId(null)}
+        />
+        <ConfirmDialog
+          isOpen={isLogoutConfirmOpen}
+          title="Log Out"
+          message="Are you sure you want to log out of the weekly winner database?"
+          confirmText="Yes, Log Out"
+          variant="primary"
+          onConfirm={() => setIsLoggedIn(false)}
+          onCancel={() => setIsLogoutConfirmOpen(false)}
         />
       </AnimatePresence>
     </div>
