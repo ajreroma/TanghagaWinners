@@ -124,8 +124,8 @@ export default function App() {
       {/* Header Navigation */}
       <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold italic">W</div>
-          <span className="text-lg font-bold text-slate-800 tracking-tight">WinnerRegistry Admin</span>
+          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold italic">T</div>
+          <span className="text-lg font-bold text-slate-800 tracking-tight">Tanghaga Winners</span>
         </div>
         
         <div className="flex items-center gap-6">
@@ -149,7 +149,7 @@ export default function App() {
         <div className="flex flex-col md:flex-row md:justify-between md:items-end shrink-0 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Weekly Winner Database</h1>
-            <p className="text-slate-500 text-sm">Manage and audit official competition winners</p>
+            <p className="text-slate-500 text-sm">Manage and edit official weekly winners</p>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
@@ -251,7 +251,7 @@ export default function App() {
 
       {/* Bottom Branding Bar */}
       <footer className="h-8 bg-slate-800 text-[10px] text-slate-400 uppercase tracking-widest flex items-center px-8 shrink-0">
-        Internal WinnerRegistry v2.4.0 — Security Tier: High
+        Tanghaga Winners Portal v2.4.0 — Security Tier: High
       </footer>
 
       {/* Modals */}

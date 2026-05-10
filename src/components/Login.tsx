@@ -30,8 +30,8 @@ export default function Login({ onLogin }: LoginProps) {
       >
         <div className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
           <div className="p-8 border-b border-slate-100 text-center">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 italic">W</div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">WinnerRegistry Admin</h1>
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 italic">T</div>
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight">Tanghaga Winners</h1>
             <p className="text-slate-500 mt-1 text-sm">Secure Database Access</p>
           </div>
 
