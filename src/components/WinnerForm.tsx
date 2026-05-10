@@ -34,10 +34,25 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // If editing, check if any changes were actually made
+    if (winner) {
+      const isUnchanged =
+        formData.name === winner.name &&
+        formData.day === winner.day &&
+        formData.month === winner.month &&
+        formData.year === winner.year &&
+        (formData.isNoWinner || false) === (winner.isNoWinner || false);
+
+      if (isUnchanged) {
+        onClose();
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
-      // App.tsx handles closing via state change, but we ensure loading stops
     } finally {
       setIsSubmitting(false);
     }
