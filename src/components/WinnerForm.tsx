@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface WinnerFormProps {
   winner?: Winner | null;
+  existingWinners?: Winner[];
   onSubmit: (data: Partial<Winner>) => Promise<void>;
   onClose: () => void;
 }
 
-export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProps) {
+export default function WinnerForm({ winner, existingWinners = [], onSubmit, onClose }: WinnerFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dateError, setDateError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Winner>>({
     name: '',
     day: new Date().getDate(),
@@ -33,11 +34,16 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
     }
   }, [winner]);
 
-  const isValidDate = (day: number, monthName: string, year: number) => {
+  const getMaxDays = (monthName: string, year: number) => {
+    const monthIndex = MONTHS.indexOf(monthName);
+    if (monthIndex === -1) return 31;
+    return new Date(year, monthIndex + 1, 0).getDate();
+  };
+
+  const isValidDate = (day: number | undefined, monthName: string | undefined, year: number | undefined) => {
+    if (!day || !monthName || !year) return true;
     const monthIndex = MONTHS.indexOf(monthName);
     if (monthIndex === -1) return false;
-    // Note: new Date(year, month, day) will rollover (e.g. April 31 -> May 1)
-    // We check if the result matches the inputs to verify validity
     const date = new Date(year, monthIndex, day);
     return (
       date.getFullYear() === year &&
@@ -46,17 +52,25 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
     );
   };
 
+  useEffect(() => {
+    if (formData.day && formData.month && formData.year) {
+      const max = getMaxDays(formData.month, formData.year);
+      if (formData.day > max) {
+        setFormData(prev => ({ ...prev, day: max }));
+      }
+    }
+    setFormError(null);
+  }, [formData.month, formData.year]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Date validation
-    if (formData.day && formData.month && formData.year) {
-      if (!isValidDate(formData.day, formData.month, formData.year)) {
-        setDateError(`Invalid date: ${formData.month} ${formData.day}, ${formData.year} does not exist.`);
-        return;
-      }
+    // Final safety validation
+    if (!isValidDate(formData.day, formData.month, formData.year)) {
+      setFormError(`The date ${formData.month} ${formData.day}, ${formData.year} is not valid.`);
+      return;
     }
-    setDateError(null);
+    setFormError(null);
 
     // If editing, check if any changes were actually made
     if (winner) {
@@ -75,6 +89,21 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
 
     setIsSubmitting(true);
     try {
+      // Check for duplicates
+      const isDuplicate = existingWinners.some(w => 
+        w.id !== winner?.id && // Exclude current winner if editing
+        w.name.toLowerCase() === (formData.name || '').toLowerCase() &&
+        w.day === formData.day &&
+        w.month === formData.month &&
+        w.year === formData.year
+      );
+
+      if (isDuplicate) {
+        setFormError('User already exists');
+        setIsSubmitting(false);
+        return;
+      }
+
       await onSubmit(formData);
     } finally {
       setIsSubmitting(false);
@@ -151,16 +180,24 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
               <input
                 type="number"
                 min="1"
-                max="31"
+                max={formData.month && formData.year ? getMaxDays(formData.month, formData.year) : 31}
                 required
                 value={formData.day}
                 onChange={(e) => {
                   const val = parseInt(e.target.value);
-                  setDateError(null);
+                  setFormError(null);
                   if (isNaN(val)) {
                     setFormData({ ...formData, day: undefined });
                   } else {
-                    setFormData({ ...formData, day: Math.min(Math.max(1, val), 31) });
+                    setFormData({ ...formData, day: val });
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) {
+                    const max = formData.month && formData.year ? getMaxDays(formData.month, formData.year) : 31;
+                    const clamped = Math.min(Math.max(1, val), max);
+                    setFormData({ ...formData, day: clamped });
                   }
                 }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
@@ -174,7 +211,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
                 required
                 value={formData.month}
                 onChange={(e) => {
-                  setDateError(null);
+                  setFormError(null);
                   setFormData({ ...formData, month: e.target.value });
                 }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
@@ -195,7 +232,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
               required
               value={formData.year}
               onChange={(e) => {
-                setDateError(null);
+                setFormError(null);
                 setFormData({ ...formData, year: parseInt(e.target.value) });
               }}
               className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
@@ -203,7 +240,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
           </div>
 
           <AnimatePresence>
-            {dateError && (
+            {formError && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -211,7 +248,7 @@ export default function WinnerForm({ winner, onSubmit, onClose }: WinnerFormProp
                 className="bg-rose-50 border border-rose-100 rounded-lg p-3 flex items-center gap-3 text-rose-600 overflow-hidden"
               >
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                <p className="text-xs font-semibold">{dateError}</p>
+                <p className="text-xs font-semibold">{formError}</p>
               </motion.div>
             )}
           </AnimatePresence>

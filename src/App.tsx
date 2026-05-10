@@ -271,6 +271,7 @@ export default function App() {
       <AnimatePresence>
         {isFormOpen && (
           <WinnerForm
+            existingWinners={winners}
             onClose={() => setIsFormOpen(false)}
             onSubmit={handleAddWinner}
           />
@@ -278,6 +279,7 @@ export default function App() {
         {editingWinner && (
           <WinnerForm
             winner={editingWinner}
+            existingWinners={winners}
             onClose={() => setEditingWinner(null)}
             onSubmit={handleUpdateWinner}
           />
