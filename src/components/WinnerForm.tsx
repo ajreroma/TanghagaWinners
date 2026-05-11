@@ -199,7 +199,7 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
       });
 
       if (isDuplicate) {
-        setFormError('User already exists');
+        setFormError('An entry with the same name and date already exists.');
         setIsSubmitting(false);
         return;
       }
