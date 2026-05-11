@@ -222,21 +222,21 @@ export default function App() {
                       >
                         <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
                           {winner.isNoWinner ? (
-                            <span className="text-slate-400 italic">No</span>
+                            <span className="text-slate-200">-</span>
                           ) : (
                             winner.firstName || (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm font-medium">
                           {winner.isNoWinner ? (
-                            <span className="text-slate-200">-</span>
+                            <span className="text-slate-400 italic">No Winner</span>
                           ) : (
                             winner.middleName || (winner.name ? (winner.name.trim().split(/\s+/).length > 2 ? winner.name.trim().split(/\s+/).slice(1, -1).join(' ') : '-') : '-')
                           )}
                         </td>
                         <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
                           {winner.isNoWinner ? (
-                            <span className="text-slate-400 italic">Winner</span>
+                            <span className="text-slate-200">-</span>
                           ) : (
                             winner.lastName || (winner.name ? (winner.name.trim().split(/\s+/).length >= 2 ? winner.name.trim().split(/\s+/).pop() : '-') : '-')
                           )}
