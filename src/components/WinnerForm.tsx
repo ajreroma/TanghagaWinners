@@ -338,31 +338,20 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Day
               </label>
-              <input
-                type="number"
-                min="1"
-                max={formData.month && formData.year ? getMaxDays(formData.month, formData.year) : 31}
+              <select
                 required
-                value={formData.day}
+                value={formData.day || ''}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value);
                   setFormError(null);
-                  if (isNaN(val)) {
-                    setFormData({ ...formData, day: undefined });
-                  } else {
-                    setFormData({ ...formData, day: val });
-                  }
-                }}
-                onBlur={(e) => {
-                  const val = parseInt(e.target.value);
-                  if (!isNaN(val)) {
-                    const max = formData.month && formData.year ? getMaxDays(formData.month, formData.year) : 31;
-                    const clamped = Math.min(Math.max(1, val), max);
-                    setFormData({ ...formData, day: clamped });
-                  }
+                  setFormData({ ...formData, day: parseInt(e.target.value) });
                 }}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
-              />
+              >
+                <option value="" disabled>Day</option>
+                {Array.from({ length: formData.month && formData.year ? getMaxDays(formData.month, formData.year) : 31 }, (_, i) => i + 1).map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
           </div>
 
