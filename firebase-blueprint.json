@@ -5,9 +5,21 @@
       "description": "A weekly winner entry",
       "type": "object",
       "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "First name of the winner"
+        },
+        "middleName": {
+          "type": "string",
+          "description": "Middle name of the winner"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the winner"
+        },
         "name": {
           "type": "string",
-          "description": "Name of the winner"
+          "description": "Full name of the winner (legacy)"
         },
         "day": {
           "type": "integer",
@@ -36,7 +48,7 @@
           "description": "Timestamp when the entry was last updated"
         }
       },
-      "required": ["name", "day", "month", "year"]
+      "required": ["firstName", "lastName", "day", "month", "year"]
     }
   },
   "firestore": {

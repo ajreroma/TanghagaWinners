@@ -1,6 +1,9 @@
 export interface Winner {
   id?: string;
-  name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  name?: string; // Optional for backward compatibility
   day: number;
   month: string;
   year: number;

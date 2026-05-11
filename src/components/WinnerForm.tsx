@@ -15,9 +15,34 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Winner>>(() => {
+    const parseName = (w: Winner | null | undefined) => {
+      if (!w) return { firstName: '', middleName: '', lastName: '' };
+      if (w.firstName !== undefined || w.lastName !== undefined) {
+        return {
+          firstName: w.firstName || '',
+          middleName: w.middleName || '',
+          lastName: w.lastName || '',
+        };
+      }
+      if (w.name) {
+        const parts = w.name.trim().split(/\s+/);
+        if (parts.length === 0) return { firstName: '', middleName: '', lastName: '' };
+        if (parts.length === 1) return { firstName: parts[0], middleName: '', lastName: '' };
+        if (parts.length === 2) return { firstName: parts[0], middleName: '', lastName: parts[1] };
+        return {
+          firstName: parts[0],
+          middleName: parts.slice(1, -1).join(' '),
+          lastName: parts[parts.length - 1],
+        };
+      }
+      return { firstName: '', middleName: '', lastName: '' };
+    };
+
+    const initialName = parseName(winner);
+
     if (winner) {
       return {
-        name: winner.name,
+        ...initialName,
         month: winner.month?.toUpperCase(),
         day: winner.day,
         year: winner.year,
@@ -25,7 +50,9 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
       };
     }
     return {
-      name: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
       month: MONTHS[new Date().getMonth()],
       day: new Date().getDate(),
       year: new Date().getFullYear(),
@@ -35,8 +62,31 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
 
   useEffect(() => {
     if (winner) {
+      const parseName = (w: Winner) => {
+        if (w.firstName !== undefined || w.lastName !== undefined) {
+          return {
+            firstName: w.firstName || '',
+            middleName: w.middleName || '',
+            lastName: w.lastName || '',
+          };
+        }
+        if (w.name) {
+          const parts = w.name.trim().split(/\s+/);
+          if (parts.length === 0) return { firstName: '', middleName: '', lastName: '' };
+          if (parts.length === 1) return { firstName: parts[0], middleName: '', lastName: '' };
+          if (parts.length === 2) return { firstName: parts[0], middleName: '', lastName: parts[1] };
+          return {
+            firstName: parts[0],
+            middleName: parts.slice(1, -1).join(' '),
+            lastName: parts[parts.length - 1],
+          };
+        }
+        return { firstName: '', middleName: '', lastName: '' };
+      };
+
+      const nameData = parseName(winner);
       setFormData({
-        name: winner.name,
+        ...nameData,
         month: winner.month?.toUpperCase(),
         day: winner.day,
         year: winner.year,
@@ -115,7 +165,9 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
     // If editing, check if any changes were actually made
     if (winner) {
       const isUnchanged =
-        formData.name === winner.name &&
+        formData.firstName === winner.firstName &&
+        formData.middleName === winner.middleName &&
+        formData.lastName === winner.lastName &&
         formData.day === winner.day &&
         formData.month === winner.month &&
         formData.year === winner.year &&
@@ -130,13 +182,21 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
     setIsSubmitting(true);
     try {
       // Check for duplicates
-      const isDuplicate = existingWinners.some(w => 
-        w.id !== winner?.id && // Exclude current winner if editing
-        w.name.toLowerCase() === (formData.name || '').toLowerCase() &&
-        w.day === formData.day &&
-        w.month === formData.month &&
-        w.year === formData.year
-      );
+      const isDuplicate = existingWinners.some(w => {
+        const matchName = w.firstName?.toLowerCase() === (formData.firstName || '').toLowerCase() &&
+                         w.lastName?.toLowerCase() === (formData.lastName || '').toLowerCase() &&
+                         (w.middleName || '')?.toLowerCase() === (formData.middleName || '').toLowerCase();
+        
+        // Handle legacy comparison if needed
+        const currentFullName = `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}`.trim().toLowerCase();
+        const legacyMatch = w.name?.toLowerCase() === currentFullName;
+
+        return w.id !== winner?.id &&
+          (matchName || legacyMatch) &&
+          w.day === formData.day &&
+          w.month === formData.month &&
+          w.year === formData.year;
+      });
 
       if (isDuplicate) {
         setFormError('User already exists');
@@ -184,11 +244,23 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
               checked={formData.isNoWinner}
               onChange={(e) => {
                 const checked = e.target.checked;
-                setFormData({ 
-                  ...formData, 
-                  isNoWinner: checked,
-                  name: checked ? 'No Winner' : (winner?.name || '')
-                });
+                if (checked) {
+                  setFormData({ 
+                    ...formData, 
+                    isNoWinner: checked,
+                    firstName: 'No',
+                    middleName: '',
+                    lastName: 'Winner'
+                  });
+                } else {
+                  setFormData({
+                    ...formData,
+                    isNoWinner: checked,
+                    firstName: winner?.firstName || '',
+                    middleName: winner?.middleName || '',
+                    lastName: winner?.lastName || '',
+                  });
+                }
               }}
               className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
@@ -197,19 +269,50 @@ const WinnerForm: React.FC<WinnerFormProps> = ({ winner, existingWinners = [], o
             </label>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Full Legal Name
-            </label>
-            <input
-              type="text"
-              required={!formData.isNoWinner}
-              disabled={formData.isNoWinner}
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm ${formData.isNoWinner ? 'bg-slate-50 text-slate-400 border-slate-100 italic' : ''}`}
-              placeholder={formData.isNoWinner ? 'No winner assigned' : 'e.g. Jonathan Aris'}
-            />
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                First Name
+              </label>
+              <input
+                type="text"
+                required={!formData.isNoWinner}
+                disabled={formData.isNoWinner}
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm ${formData.isNoWinner ? 'bg-slate-50 text-slate-400 border-slate-100 italic' : ''}`}
+                placeholder={formData.isNoWinner ? 'No winner' : 'e.g. Jonathan'}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Middle Name (Optional)
+              </label>
+              <input
+                type="text"
+                disabled={formData.isNoWinner}
+                value={formData.middleName}
+                onChange={(e) => setFormData({ ...formData, middleName: e.target.value })}
+                className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm ${formData.isNoWinner ? 'bg-slate-50 text-slate-400 border-slate-100 italic' : ''}`}
+                placeholder="e.g. Aris"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Last Name
+              </label>
+              <input
+                type="text"
+                required={!formData.isNoWinner}
+                disabled={formData.isNoWinner}
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm ${formData.isNoWinner ? 'bg-slate-50 text-slate-400 border-slate-100 italic' : ''}`}
+                placeholder="e.g. Doe"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">

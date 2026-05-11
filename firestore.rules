@@ -23,10 +23,12 @@ service cloud.firestore {
     }
 
     function isValidWinner(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+      return (data.firstName is string && data.firstName.size() > 0 && data.firstName.size() <= 100) &&
+             (data.lastName is string && data.lastName.size() > 0 && data.lastName.size() <= 100) &&
+             (data.middleName == null || data.middleName == "" || (data.middleName is string && data.middleName.size() <= 100)) &&
              data.day is int && data.day >= 1 && data.day <= 31 &&
              data.month is string && data.month.size() > 0 && data.month.size() <= 20 &&
-             data.year is int && data.year >= 2000 && data.year <= 2100 &&
+             data.year is int && data.year >= 1900 && data.year <= 2100 &&
              (data.isNoWinner == null || data.isNoWinner is bool) &&
              data.createdAt is timestamp &&
              data.updatedAt is timestamp;

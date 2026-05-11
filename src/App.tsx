@@ -100,11 +100,16 @@ export default function App() {
   };
 
   const filteredWinners = useMemo(() => {
-    const filtered = winners.filter(w => 
-      w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      w.month.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      w.year.toString().includes(searchTerm)
-    );
+    const filtered = winners.filter(w => {
+      const fullName = (w.firstName || w.lastName) 
+        ? `${w.firstName || ''} ${w.middleName || ''} ${w.lastName || ''}`.toLowerCase()
+        : (w.name || '').toLowerCase();
+      
+      const search = searchTerm.toLowerCase();
+      return fullName.includes(search) ||
+             w.month.toLowerCase().includes(search) ||
+             w.year.toString().includes(search);
+    });
 
     return filtered.sort((a, b) => {
       // Primary: Year (desc)
@@ -220,7 +225,24 @@ export default function App() {
                               No Winner
                             </span>
                           ) : (
-                            winner.name
+                            (() => {
+                              if (winner.firstName || winner.lastName) {
+                                return [
+                                  winner.firstName,
+                                  winner.middleName,
+                                  winner.lastName
+                                ].filter(Boolean).join(' ');
+                              }
+                              if (winner.name) {
+                                const parts = winner.name.trim().split(/\s+/);
+                                if (parts.length >= 2) {
+                                  // First word is First Name, Last word is Last Name
+                                  return `${parts[0]} ${parts[parts.length - 1]}`;
+                                }
+                                return winner.name;
+                              }
+                              return 'Unknown';
+                            })()
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm uppercase font-medium">{winner.month}</td>
