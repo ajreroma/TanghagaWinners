@@ -201,7 +201,9 @@ export default function App() {
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10">
                   <tr>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Full Name</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">First Name</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Middle Name</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Last Name</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Month</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Day</th>
                     <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Year</th>
@@ -220,36 +222,30 @@ export default function App() {
                       >
                         <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
                           {winner.isNoWinner ? (
-                            <span className="flex items-center gap-2 text-slate-400 italic">
-                              <AlertCircle className="w-3.5 h-3.5" />
-                              No Winner
-                            </span>
+                            <span className="text-slate-400 italic">No</span>
                           ) : (
-                            (() => {
-                              if (winner.firstName || winner.lastName) {
-                                return [
-                                  winner.firstName,
-                                  winner.middleName,
-                                  winner.lastName
-                                ].filter(Boolean).join(' ');
-                              }
-                              if (winner.name) {
-                                const parts = winner.name.trim().split(/\s+/);
-                                if (parts.length >= 2) {
-                                  // First word is First Name, Last word is Last Name
-                                  return `${parts[0]} ${parts[parts.length - 1]}`;
-                                }
-                                return winner.name;
-                              }
-                              return 'Unknown';
-                            })()
+                            winner.firstName || (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-slate-600 text-sm font-medium">
+                          {winner.isNoWinner ? (
+                            <span className="text-slate-200">-</span>
+                          ) : (
+                            winner.middleName || (winner.name ? (winner.name.trim().split(/\s+/).length > 2 ? winner.name.trim().split(/\s+/).slice(1, -1).join(' ') : '-') : '-')
+                          )}
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
+                          {winner.isNoWinner ? (
+                            <span className="text-slate-400 italic">Winner</span>
+                          ) : (
+                            winner.lastName || (winner.name ? (winner.name.trim().split(/\s+/).length >= 2 ? winner.name.trim().split(/\s+/).pop() : '-') : '-')
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm uppercase font-medium">{winner.month}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.day}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{winner.year}</td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-4">
                             <button
                               onClick={() => setEditingWinner(winner)}
                               className="text-blue-600 hover:text-blue-800 text-xs font-bold uppercase tracking-wider"
