@@ -224,7 +224,9 @@ export default function App() {
                           {winner.isNoWinner ? (
                             <span className="text-slate-200">-</span>
                           ) : (
-                            winner.firstName || (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')
+                            winner.firstName !== undefined 
+                              ? (winner.firstName || 'Unknown') 
+                              : (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm font-medium">
@@ -232,8 +234,14 @@ export default function App() {
                             <span className="text-slate-400 italic">No Winner</span>
                           ) : (
                             (() => {
-                              const fName = (winner.firstName || (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')).toLowerCase();
-                              const mNameCandidate = winner.middleName || (winner.name ? (winner.name.trim().split(/\s+/).length > 2 ? winner.name.trim().split(/\s+/).slice(1, -1).join(' ') : '-') : '-');
+                              const fName = (winner.firstName !== undefined 
+                                ? (winner.firstName || 'Unknown') 
+                                : (winner.name ? winner.name.trim().split(/\s+/)[0] : 'Unknown')).toLowerCase();
+                              
+                              const mNameCandidate = winner.middleName !== undefined
+                                ? (winner.middleName || '-')
+                                : (winner.name ? (winner.name.trim().split(/\s+/).length > 2 ? winner.name.trim().split(/\s+/).slice(1, -1).join(' ') : '-') : '-');
+                              
                               return mNameCandidate.toLowerCase() === fName ? '-' : mNameCandidate;
                             })()
                           )}
@@ -242,7 +250,9 @@ export default function App() {
                           {winner.isNoWinner ? (
                             <span className="text-slate-200">-</span>
                           ) : (
-                            winner.lastName || (winner.name ? (winner.name.trim().split(/\s+/).length >= 2 ? winner.name.trim().split(/\s+/).pop() : '-') : '-')
+                            winner.lastName !== undefined
+                              ? (winner.lastName || '-')
+                              : (winner.name ? (winner.name.trim().split(/\s+/).length >= 2 ? winner.name.trim().split(/\s+/).pop() : '-') : '-')
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm uppercase font-medium">{winner.month}</td>
